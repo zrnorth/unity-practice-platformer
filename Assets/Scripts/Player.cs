@@ -7,8 +7,10 @@ public class Player : MonoBehaviour
     // Game modifiers
     [SerializeField]
     private float _speed = 90f;
+
     [SerializeField]
     private float _jumpForce = 2000f;
+
     [SerializeField]
     private int _jumps = 1;
 
