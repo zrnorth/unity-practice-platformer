@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -29,19 +30,31 @@ public class GameManager : MonoBehaviour
         _player.transform.position = _playerSpawnPoint.position;
     }
 
-    private void GameOver()
+    private void Update()
     {
-        Debug.Log("Game Over"); // todo
+        // If player hits Esc, return to the main menu.
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadScene(0); // MainMenu
+        }
+    }
+
+    private IEnumerator GameOver()
+    {
+        _uiManager.GameOver();
+        yield return new WaitForSeconds(3f);
+        SceneManager.LoadScene(0); // MainMenu
     }
 
     public void PlayerDied()
     {
         _livesRemaining--;
-        _uiManager.UpdateLivesDisplay(_livesRemaining);
         if (_livesRemaining <= 0)
         {
-            GameOver();
+            StartCoroutine(GameOver());
         }
+
+        _uiManager.UpdateLivesDisplay(_livesRemaining);
         _player.transform.position = _playerSpawnPoint.position;
 
         // If we disable and reenable the player, we reset all physics and velocity values.
