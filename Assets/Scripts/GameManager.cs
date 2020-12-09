@@ -6,13 +6,15 @@ public class GameManager : MonoBehaviour
 {
     // Game scalars
     [SerializeField]
-    private int _lives = 3;
+    private int _startingLives = 3;
 
     // Hookups
     [SerializeField]
     private Player _player;
     [SerializeField]
     private Transform _playerSpawnPoint;
+    [SerializeField]
+    private UIManager _uiManager;
 
     // State vars
     private int _livesRemaining;
@@ -21,16 +23,10 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        _livesRemaining = _lives;
+        _livesRemaining = _startingLives;
 
         // Place the player
         _player.transform.position = _playerSpawnPoint.position;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 
     private void GameOver()
@@ -41,7 +37,7 @@ public class GameManager : MonoBehaviour
     public void PlayerDied()
     {
         _livesRemaining--;
-        Debug.Log("Lives remaining: " + _livesRemaining);
+        _uiManager.UpdateLivesDisplay(_livesRemaining);
         if (_livesRemaining <= 0)
         {
             GameOver();
