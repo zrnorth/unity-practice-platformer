@@ -4,22 +4,18 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    // Game modifiers
     [SerializeField]
     private float _speed = 90f;
-
     [SerializeField]
     private float _jumpForce = 2000f;
-
     [SerializeField]
     private int _jumps = 1;
 
     // State vars
     private int _numJumpsRemaining;
 
-    // Components
+    // Component references
     private Rigidbody2D _rb;
-    private BoxCollider2D _collider;
 
     private void GetInputAndMove()
     {
@@ -38,7 +34,6 @@ public class Player : MonoBehaviour
     private void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
-        _collider = GetComponent<BoxCollider2D>();
         _numJumpsRemaining = _jumps;
     }
 
