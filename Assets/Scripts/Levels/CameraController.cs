@@ -20,6 +20,15 @@ public class CameraController : MonoBehaviour
     [SerializeField]
     private bool _lockYPosition = false;
 
+    // Private vars
+    private float _xOffsetOriginal;
+    private float _yOffsetOriginal;
+
+    private void Start()
+    {
+        _xOffsetOriginal = _xOffset;
+        _yOffsetOriginal = _yOffset;
+    }
 
     void Update()
     {
@@ -38,5 +47,19 @@ public class CameraController : MonoBehaviour
         }
 
         transform.position = new Vector3(xNew, yNew, transform.position.z);
+    }
+
+    public void SetOffsetDirection(Direction dir)
+    {
+        // Based on the direction the player is moving, update the scene camera
+        // to look ahead the appropriate direction.
+        if (dir == Direction.EAST)
+        {
+            _xOffset = _xOffsetOriginal;
+        }
+        else if (dir == Direction.WEST)
+        {
+            _xOffset = _xOffsetOriginal * -1;
+        }
     }
 }

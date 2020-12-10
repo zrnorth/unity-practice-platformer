@@ -3,6 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+public enum Direction
+{
+    NORTH,
+    EAST,
+    SOUTH,
+    WEST,
+}
+
 public class GameManager : MonoBehaviour
 {
     // Game scalars
@@ -16,6 +24,8 @@ public class GameManager : MonoBehaviour
     private Transform _playerSpawnPoint;
     [SerializeField]
     private UIManager _uiManager;
+    [SerializeField]
+    private CameraController _cameraController;
 
     // State vars
     private int _livesRemaining;
@@ -44,6 +54,11 @@ public class GameManager : MonoBehaviour
         _uiManager.GameOver();
         yield return new WaitForSeconds(3f);
         SceneManager.LoadScene(0); // MainMenu
+    }
+
+    public void SetPlayerFacing(Direction dir)
+    {
+        _cameraController.SetOffsetDirection(dir);
     }
 
     public void PlayerDied()

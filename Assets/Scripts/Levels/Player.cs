@@ -4,15 +4,23 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    // Game scalars
     [SerializeField]
     private float _speed = 90f;
     [SerializeField]
     private float _jumpForce = 2000f;
     [SerializeField]
     private int _jumps = 1;
+    [SerializeField]
+    private float _cameraOffsetSwapMinSpeed = 5f; // Min speed at which the camera will swap offset directions
+
+    // References
+    [SerializeField]
+    private GameManager _gameManager;
 
     // State vars
     private int _numJumpsRemaining;
+    private Direction _facingDir;
 
     // Component references
     private Rigidbody2D _rb;
@@ -31,15 +39,40 @@ public class Player : MonoBehaviour
         _rb.AddForce(moment);
     }
 
+    private void UpdateMovementDirection()
+    {
+        Direction startOfFrameFacing = _facingDir;
+        // TODO: vertical camera facing
+        if (_rb.velocity.x == 0)
+        {
+            return; // Don't send any update if we have stopped.
+        }
+
+        else if (_rb.velocity.x > _cameraOffsetSwapMinSpeed)
+        {
+            _facingDir = Direction.EAST;
+        }
+        else if (_rb.velocity.x < -1 * _cameraOffsetSwapMinSpeed)
+        {
+            _facingDir = Direction.WEST;
+        }
+        if (startOfFrameFacing != _facingDir)
+        {
+            _gameManager.SetPlayerFacing(_facingDir);
+        }
+
+    }
+
     private void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
         _numJumpsRemaining = _jumps;
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         GetInputAndMove();
+        UpdateMovementDirection();
     }
 
     private void OnCollisionEnter2D(Collision2D other)
