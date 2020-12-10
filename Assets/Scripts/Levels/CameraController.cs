@@ -65,8 +65,20 @@ public class CameraController : MonoBehaviour
         }
     }
 
+    public CameraSettings GetCameraSettings()
+    {
+        return _cameraSettings;
+    }
     public void SetCameraSettings(CameraSettings cameraSettings)
     {
         _cameraSettings = cameraSettings;
+    }
+
+    public IEnumerator SetCameraSettingsTemporarily(CameraSettings cameraSettings, float time)
+    {
+        CameraSettings oldCameraSettings = _cameraSettings;
+        SetCameraSettings(cameraSettings);
+        yield return new WaitForSeconds(time);
+        SetCameraSettings(oldCameraSettings);
     }
 }

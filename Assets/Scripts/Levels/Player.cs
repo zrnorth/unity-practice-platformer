@@ -12,6 +12,8 @@ public class Player : MonoBehaviour
     [SerializeField]
     private int _jumps = 1;
     [SerializeField]
+    private float _jumpCooldown = 0.1f;
+    [SerializeField]
     private float _cameraOffsetSwapMinSpeed = 5f; // Min speed at which the camera will swap offset directions
 
     // References
@@ -20,7 +22,9 @@ public class Player : MonoBehaviour
 
     // State vars
     private int _numJumpsRemaining;
+    private float _nextJump;
     private Direction _facingDir;
+
 
     // Component references
     private Rigidbody2D _rb;
@@ -31,10 +35,11 @@ public class Player : MonoBehaviour
         float horiz = Input.GetAxis("Horizontal");
         moment.x = horiz * _speed;
 
-        if (Input.GetKeyDown(KeyCode.Space) && _numJumpsRemaining > 0)
+        if (Input.GetKeyDown(KeyCode.Space) && _numJumpsRemaining > 0 && Time.time > _nextJump)
         {
             moment.y = _jumpForce;
             _numJumpsRemaining--;
+            _nextJump = Time.time + _jumpCooldown;
         }
         _rb.AddForce(moment);
     }
@@ -67,6 +72,7 @@ public class Player : MonoBehaviour
     {
         _rb = GetComponent<Rigidbody2D>();
         _numJumpsRemaining = _jumps;
+        _nextJump = Time.time + _jumpCooldown;
     }
 
     private void FixedUpdate()

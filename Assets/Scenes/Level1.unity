@@ -1518,7 +1518,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _speed: 90
   _jumpForce: 2000
-  _jumps: 1
+  _jumps: 2
+  _jumpCooldown: 0.1
   _cameraOffsetSwapMinSpeed: 5
   _gameManager: {fileID: 530423150}
 --- !u!1 &2087759998
