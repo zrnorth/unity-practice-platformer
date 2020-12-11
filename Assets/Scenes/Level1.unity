@@ -2559,8 +2559,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77c0dfc2286cb4c43a9cc760348c7de3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _speed: 90
-  _jumpForce: 2000
+  _speed: 60
+  _jumpForce: 1500
   _jumps: 2
   _jumpCooldown: 0.1
   _cameraOffsetSwapMinSpeed: 5

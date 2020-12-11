@@ -10,6 +10,8 @@ public class Player : MonoBehaviour
     [SerializeField]
     private float _jumpForce = 2000f;
     [SerializeField]
+    private float _jumpingGravityReduction = 4f;
+    [SerializeField]
     private int _jumps = 1;
     [SerializeField]
     private float _jumpCooldown = 0.1f;
@@ -30,6 +32,8 @@ public class Player : MonoBehaviour
 
     // Component references
     private Rigidbody2D _rb;
+
+    private float _originalGravityScale;
 
     private void ApplyForces()
     {
@@ -55,6 +59,17 @@ public class Player : MonoBehaviour
             _numJumpsRemaining--;
             _nextJump = Time.time + _jumpCooldown;
             _didJump = true;
+        }
+
+        // Reduce gravity while jump is held, so that the player can more
+        // granularly choose how high to jump.
+        if (Input.GetKey(KeyCode.Space) && this._rb.velocity.y > 0f)
+        {
+            _rb.gravityScale = _originalGravityScale / _jumpingGravityReduction;
+        }
+        else
+        {
+            _rb.gravityScale = _originalGravityScale;
         }
     }
 
@@ -87,6 +102,7 @@ public class Player : MonoBehaviour
         _rb = GetComponent<Rigidbody2D>();
         _numJumpsRemaining = _jumps;
         _nextJump = Time.time + _jumpCooldown;
+        _originalGravityScale = _rb.gravityScale;
     }
 
     private void Update()
