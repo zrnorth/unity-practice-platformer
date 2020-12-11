@@ -102,7 +102,7 @@ public class Player : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D other)
     {
-        if (other.transform.tag == "Platform")
+        if (other.transform.tag == "Platform" && _rb.velocity.y <= 0)
         {
             _numJumpsRemaining = _jumps;
         }
