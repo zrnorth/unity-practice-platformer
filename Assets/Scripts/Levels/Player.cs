@@ -58,18 +58,29 @@ public class Player : MonoBehaviour
     private void GetInputAndApplyMoment()
     {
         float horiz = Input.GetAxisRaw("Horizontal");
+        float vertical = Input.GetAxisRaw("Vertical");
         _moment.x += horiz * _speed;
+        bool isPressingDown = vertical <= -1f;
 
         bool isGrounded = _lastGroundedTime == GROUNDED || Time.time < _lastGroundedTime + _coyoteTime;
         bool canJump = isGrounded || _numDoubleJumpsRemaining > 0;
-        if (Input.GetKeyDown(KeyCode.Space) && Time.time > _nextJump && canJump)
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            _moment.y += _jumpForce;
-            _nextJump = Time.time + _jumpCooldown;
-            _didJump = true;
-            if (!isGrounded)
+            // Down+Jump = drop through platforms by disabling collision
+            if (isGrounded && isPressingDown)
             {
-                _numDoubleJumpsRemaining--;
+                _collider.isTrigger = true;
+            }
+            // Otherwise it's a regular jump
+            else if (Time.time > _nextJump && canJump)
+            {
+                _moment.y += _jumpForce;
+                _nextJump = Time.time + _jumpCooldown;
+                _didJump = true;
+                if (!isGrounded)
+                {
+                    _numDoubleJumpsRemaining--;
+                }
             }
         }
 
@@ -136,6 +147,14 @@ public class Player : MonoBehaviour
         if (other.transform.tag == "Platform" && _rb.velocity.y <= 0)
         {
             _numDoubleJumpsRemaining = _doubleJumps;
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.transform.tag == "Platform")
+        {
+            _collider.isTrigger = false;
         }
     }
 
