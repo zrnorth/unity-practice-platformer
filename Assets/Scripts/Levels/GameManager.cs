@@ -68,9 +68,8 @@ public class GameManager : MonoBehaviour
         {
             StartCoroutine(GameOver());
         }
-        CameraSettings camSettings = _cameraController.GetCameraSettings();
-        camSettings.trackingSpeed = 5f;
-        StartCoroutine(_cameraController.SetCameraSettingsTemporarily(camSettings, 1.0f));
+        _cameraController.ResetCameraSettings();
+        _cameraController.ResetCameraPosition();
         _uiManager.UpdateLivesDisplay(_livesRemaining);
         _player.transform.position = _playerSpawnPoint.position;
 

@@ -7,20 +7,19 @@ public class CameraAdjuster : MonoBehaviour
     [SerializeField]
     private CameraController _camera;
     [SerializeField]
-    private bool _updateCameraSettings = false;
+    private bool _resetToOriginal = false;
     [SerializeField]
     private CameraSettings _newCameraSettings;
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.tag == "Player")
         {
-            if (_updateCameraSettings)
+            if (_resetToOriginal)
             {
-                _camera.SetCameraSettings(_newCameraSettings);
+                _camera.ResetCameraSettings();
+                return;
             }
+            _camera.SetCameraSettings(_newCameraSettings);
         }
-
-        Destroy(gameObject);
     }
-
 }

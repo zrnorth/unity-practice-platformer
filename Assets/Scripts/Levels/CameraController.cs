@@ -3,14 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public struct CameraSettings
+public class CameraSettings
 {
     // Const scalars
-    public float xOffset;
-    public float yOffset;
-    public float trackingSpeed;
-    public bool lockXPosition;
-    public bool lockYPosition;
+    public float xOffset = 0f;
+    public float yOffset = 0f;
+    public float trackingSpeed = 1f;
+    public bool lockXPosition = false;
+    public bool lockYPosition = false;
+
+    override public string ToString()
+    {
+        return xOffset + " " +
+               yOffset + " " +
+               trackingSpeed + " " +
+               lockXPosition + " " +
+               lockYPosition;
+    }
 }
 
 public class CameraController : MonoBehaviour
@@ -20,32 +29,32 @@ public class CameraController : MonoBehaviour
     private Transform _trackingTarget;
 
     [SerializeField]
-    private CameraSettings _cameraSettings;
+    private CameraSettings _defaultCameraSettings;
 
     // Private vars
-    private float _xOffsetOriginal;
-    private float _yOffsetOriginal;
+    private CameraSettings _currentCameraSettings;
+    private Transform _originalCameraPosition;
 
     private void Start()
     {
-        _xOffsetOriginal = _cameraSettings.xOffset;
-        _yOffsetOriginal = _cameraSettings.yOffset;
+        ResetCameraSettings();
+        _originalCameraPosition = transform;
     }
 
     void Update()
     {
-        float xTarget = _trackingTarget.position.x + _cameraSettings.xOffset;
-        float yTarget = _trackingTarget.position.y + _cameraSettings.yOffset;
+        float xTarget = _trackingTarget.position.x + _currentCameraSettings.xOffset;
+        float yTarget = _trackingTarget.position.y + _currentCameraSettings.yOffset;
         // Note that the z does not update. it is fixed in the editor.
         float xNew = transform.position.x;
         float yNew = transform.position.y;
-        if (!_cameraSettings.lockXPosition)
+        if (!_currentCameraSettings.lockXPosition)
         {
-            xNew = Mathf.Lerp(transform.position.x, xTarget, Time.deltaTime * _cameraSettings.trackingSpeed);
+            xNew = Mathf.Lerp(transform.position.x, xTarget, Time.deltaTime * _currentCameraSettings.trackingSpeed);
         }
-        if (!_cameraSettings.lockYPosition)
+        if (!_currentCameraSettings.lockYPosition)
         {
-            yNew = Mathf.Lerp(transform.position.y, yTarget, Time.deltaTime * _cameraSettings.trackingSpeed);
+            yNew = Mathf.Lerp(transform.position.y, yTarget, Time.deltaTime * _currentCameraSettings.trackingSpeed);
         }
 
         transform.position = new Vector3(xNew, yNew, transform.position.z);
@@ -57,28 +66,38 @@ public class CameraController : MonoBehaviour
         // to look ahead the appropriate direction.
         if (dir == Direction.EAST)
         {
-            _cameraSettings.xOffset = _xOffsetOriginal;
+            _currentCameraSettings.xOffset = Mathf.Abs(_currentCameraSettings.xOffset);
         }
         else if (dir == Direction.WEST)
         {
-            _cameraSettings.xOffset = _xOffsetOriginal * -1;
+            _currentCameraSettings.xOffset = Mathf.Abs(_currentCameraSettings.xOffset) * -1;
         }
     }
 
     public CameraSettings GetCameraSettings()
     {
-        return _cameraSettings;
+        return _currentCameraSettings;
     }
     public void SetCameraSettings(CameraSettings cameraSettings)
     {
-        _cameraSettings = cameraSettings;
+        _currentCameraSettings = cameraSettings;
     }
 
     public IEnumerator SetCameraSettingsTemporarily(CameraSettings cameraSettings, float time)
     {
-        CameraSettings oldCameraSettings = _cameraSettings;
+        CameraSettings oldCameraSettings = _currentCameraSettings;
         SetCameraSettings(cameraSettings);
         yield return new WaitForSeconds(time);
         SetCameraSettings(oldCameraSettings);
+    }
+
+    public void ResetCameraSettings()
+    {
+        SetCameraSettings(_defaultCameraSettings);
+    }
+
+    public void ResetCameraPosition()
+    {
+        transform.position = _originalCameraPosition.position;
     }
 }
