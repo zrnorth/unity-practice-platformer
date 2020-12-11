@@ -33,8 +33,8 @@ public class Player : MonoBehaviour
     private bool _didJump;
     private Direction _facingDir;
     private Vector2 _moment = new Vector2(0, 0);
-    [SerializeField]
     private float _lastGroundedTime = GROUNDED;
+    private bool _isOnOneWayPlatform = false;
 
     // Component references
     private Rigidbody2D _rb;
@@ -67,7 +67,7 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space))
         {
             // Down+Jump = drop through platforms by disabling collision
-            if (isGrounded && isPressingDown)
+            if (isGrounded && isPressingDown && _isOnOneWayPlatform)
             {
                 _collider.isTrigger = true;
             }
@@ -139,7 +139,7 @@ public class Player : MonoBehaviour
     {
         ApplyForces();
         UpdateMovementDirection();
-        UpdateGroundedTimes();
+        UpdateGround();
     }
 
     private void OnCollisionEnter2D(Collision2D other)
@@ -163,18 +163,25 @@ public class Player : MonoBehaviour
         _rb.constraints = RigidbodyConstraints2D.FreezeAll;
     }
 
-    private void UpdateGroundedTimes()
+    private void UpdateGround()
     {
-        float distToGround = _collider.bounds.extents.y;
-        bool isGrounded = Physics2D.Raycast(transform.position, Vector3.down, distToGround + 0.1f, _groundLayerMask);
+        float distance = _collider.bounds.extents.y + 0.1f;
+        // TODO: do two raycasts at each x bound instead of one at the center.
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector3.down, distance, _groundLayerMask);
 
-        if (_lastGroundedTime == GROUNDED && !isGrounded)
+        if (_lastGroundedTime == GROUNDED && hit.collider == null)
         {
             _lastGroundedTime = Time.time;
+            _isOnOneWayPlatform = false;
         }
-        else if (_lastGroundedTime != GROUNDED && isGrounded)
+        else if (_lastGroundedTime != GROUNDED && hit.collider != null)
         {
             _lastGroundedTime = GROUNDED;
+            PlatformEffector2D effector = hit.collider.GetComponent<PlatformEffector2D>();
+            if (effector)
+            {
+                _isOnOneWayPlatform = effector.useOneWay;
+            }
         }
     }
 }
