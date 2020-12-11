@@ -21,26 +21,33 @@ public class Player : MonoBehaviour
     private GameManager _gameManager;
 
     // State vars
+    [SerializeField]
     private int _numJumpsRemaining;
     private float _nextJump;
     private Direction _facingDir;
 
+    private Vector2 _moment = new Vector2(0, 0);
+
     // Component references
     private Rigidbody2D _rb;
 
-    private void GetInputAndMove()
+    private void ApplyForces()
     {
-        Vector2 moment = new Vector2();
-        float horiz = Input.GetAxis("Horizontal");
-        moment.x = horiz * _speed;
+        _rb.AddForce(_moment);
+        _moment = new Vector2(0, 0);
+    }
+
+    private void GetInputAndApplyMoment()
+    {
+        float horiz = Input.GetAxisRaw("Horizontal");
+        _moment.x += horiz * _speed;
 
         if (Input.GetKeyDown(KeyCode.Space) && _numJumpsRemaining > 0 && Time.time > _nextJump)
         {
-            moment.y = _jumpForce;
+            _moment.y += _jumpForce;
             _numJumpsRemaining--;
             _nextJump = Time.time + _jumpCooldown;
         }
-        _rb.AddForce(moment);
     }
 
     private void UpdateMovementDirection()
@@ -74,9 +81,14 @@ public class Player : MonoBehaviour
         _nextJump = Time.time + _jumpCooldown;
     }
 
+    private void Update()
+    {
+        GetInputAndApplyMoment();
+    }
+
     private void FixedUpdate()
     {
-        GetInputAndMove();
+        ApplyForces();
         UpdateMovementDirection();
     }
 
