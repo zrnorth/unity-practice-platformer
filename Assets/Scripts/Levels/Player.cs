@@ -12,7 +12,7 @@ public class Player : MonoBehaviour
     [SerializeField]
     private float _jumpingGravityReduction = 4f;
     [SerializeField]
-    private int _jumps = 1;
+    private int _doubleJumps = 1;
     [SerializeField]
     private float _jumpCooldown = 0.1f;
     [SerializeField]
@@ -23,7 +23,7 @@ public class Player : MonoBehaviour
     private GameManager _gameManager;
 
     // State vars
-    private int _numJumpsRemaining;
+    private int _numDoubleJumpsRemaining;
     private float _nextJump;
     private bool _didJump;
     private Direction _facingDir;
@@ -32,7 +32,8 @@ public class Player : MonoBehaviour
 
     // Component references
     private Rigidbody2D _rb;
-
+    private BoxCollider2D _collider;
+    private LayerMask _groundLayerMask;
     private float _originalGravityScale;
 
     private void ApplyForces()
@@ -53,12 +54,17 @@ public class Player : MonoBehaviour
         float horiz = Input.GetAxisRaw("Horizontal");
         _moment.x += horiz * _speed;
 
-        if (Input.GetKeyDown(KeyCode.Space) && _numJumpsRemaining > 0 && Time.time > _nextJump)
+        bool isGrounded = IsGrounded();
+        bool canJump = isGrounded || _numDoubleJumpsRemaining > 0;
+        if (Input.GetKeyDown(KeyCode.Space) && Time.time > _nextJump && canJump)
         {
             _moment.y += _jumpForce;
-            _numJumpsRemaining--;
             _nextJump = Time.time + _jumpCooldown;
             _didJump = true;
+            if (!isGrounded)
+            {
+                _numDoubleJumpsRemaining--;
+            }
         }
 
         // Reduce gravity while jump is held, so that the player can more
@@ -100,7 +106,9 @@ public class Player : MonoBehaviour
     private void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
-        _numJumpsRemaining = _jumps;
+        _collider = GetComponent<BoxCollider2D>();
+        _groundLayerMask = LayerMask.GetMask("Platform");
+        _numDoubleJumpsRemaining = _doubleJumps;
         _nextJump = Time.time + _jumpCooldown;
         _originalGravityScale = _rb.gravityScale;
     }
@@ -120,12 +128,18 @@ public class Player : MonoBehaviour
     {
         if (other.transform.tag == "Platform" && _rb.velocity.y <= 0)
         {
-            _numJumpsRemaining = _jumps;
+            _numDoubleJumpsRemaining = _doubleJumps;
         }
     }
 
     public void FreezePlayer()
     {
         _rb.constraints = RigidbodyConstraints2D.FreezeAll;
+    }
+
+    private bool IsGrounded()
+    {
+        float distToGround = _collider.bounds.extents.y;
+        return Physics2D.Raycast(transform.position, Vector3.down, distToGround + 0.1f, _groundLayerMask);
     }
 }
