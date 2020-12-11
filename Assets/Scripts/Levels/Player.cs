@@ -21,9 +21,9 @@ public class Player : MonoBehaviour
     private GameManager _gameManager;
 
     // State vars
-    [SerializeField]
     private int _numJumpsRemaining;
     private float _nextJump;
+    private bool _didJump;
     private Direction _facingDir;
 
     private Vector2 _moment = new Vector2(0, 0);
@@ -33,6 +33,13 @@ public class Player : MonoBehaviour
 
     private void ApplyForces()
     {
+        // Apply jump forces. Double-jumps should have the same height, so reset
+        // the y velocity before adding the moment.
+        if (_didJump)
+        {
+            _rb.velocity = new Vector2(_rb.velocity.x, 0);
+            _didJump = false;
+        }
         _rb.AddForce(_moment);
         _moment = new Vector2(0, 0);
     }
@@ -47,6 +54,7 @@ public class Player : MonoBehaviour
             _moment.y += _jumpForce;
             _numJumpsRemaining--;
             _nextJump = Time.time + _jumpCooldown;
+            _didJump = true;
         }
     }
 
