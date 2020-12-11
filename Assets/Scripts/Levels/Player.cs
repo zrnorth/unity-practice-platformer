@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    // Constants
+    private static float GROUNDED = -1;
+
     // Game scalars
     [SerializeField]
     private float _speed = 90f;
@@ -16,6 +19,8 @@ public class Player : MonoBehaviour
     [SerializeField]
     private float _jumpCooldown = 0.1f;
     [SerializeField]
+    private float _coyoteTime = 0.1f;
+    [SerializeField]
     private float _cameraOffsetSwapMinSpeed = 5f; // Min speed at which the camera will swap offset directions
 
     // References
@@ -27,8 +32,9 @@ public class Player : MonoBehaviour
     private float _nextJump;
     private bool _didJump;
     private Direction _facingDir;
-
     private Vector2 _moment = new Vector2(0, 0);
+    [SerializeField]
+    private float _lastGroundedTime = GROUNDED;
 
     // Component references
     private Rigidbody2D _rb;
@@ -54,7 +60,7 @@ public class Player : MonoBehaviour
         float horiz = Input.GetAxisRaw("Horizontal");
         _moment.x += horiz * _speed;
 
-        bool isGrounded = IsGrounded();
+        bool isGrounded = _lastGroundedTime == GROUNDED || Time.time < _lastGroundedTime + _coyoteTime;
         bool canJump = isGrounded || _numDoubleJumpsRemaining > 0;
         if (Input.GetKeyDown(KeyCode.Space) && Time.time > _nextJump && canJump)
         {
@@ -122,6 +128,7 @@ public class Player : MonoBehaviour
     {
         ApplyForces();
         UpdateMovementDirection();
+        UpdateGroundedTimes();
     }
 
     private void OnCollisionEnter2D(Collision2D other)
@@ -137,9 +144,18 @@ public class Player : MonoBehaviour
         _rb.constraints = RigidbodyConstraints2D.FreezeAll;
     }
 
-    private bool IsGrounded()
+    private void UpdateGroundedTimes()
     {
         float distToGround = _collider.bounds.extents.y;
-        return Physics2D.Raycast(transform.position, Vector3.down, distToGround + 0.1f, _groundLayerMask);
+        bool isGrounded = Physics2D.Raycast(transform.position, Vector3.down, distToGround + 0.1f, _groundLayerMask);
+
+        if (_lastGroundedTime == GROUNDED && !isGrounded)
+        {
+            _lastGroundedTime = Time.time;
+        }
+        else if (_lastGroundedTime != GROUNDED && isGrounded)
+        {
+            _lastGroundedTime = GROUNDED;
+        }
     }
 }
