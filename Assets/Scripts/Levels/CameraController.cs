@@ -100,4 +100,10 @@ public class CameraController : MonoBehaviour
     {
         transform.position = _originalCameraPosition.position;
     }
+
+    public void CompletedLevel()
+    {
+        _currentCameraSettings.trackingSpeed = 0f;
+        GetComponent<Camera>().backgroundColor = Color.white;
+    }
 }

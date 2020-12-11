@@ -9,6 +9,8 @@ public class Goal : MonoBehaviour
     private float _rotateSpeed = 1f;
     [SerializeField]
     private int _sceneToLoad = 0;
+    [SerializeField]
+    private GameManager _gameManager;
 
     private Transform _outer, _inner;
 
@@ -28,7 +30,7 @@ public class Goal : MonoBehaviour
     {
         if (other.tag == "Player")
         {
-            SceneManager.LoadScene(_sceneToLoad);
+            _gameManager.CompletedLevel(_sceneToLoad);
         }
     }
 }

@@ -25,7 +25,6 @@ public class Player : MonoBehaviour
     private float _nextJump;
     private Direction _facingDir;
 
-
     // Component references
     private Rigidbody2D _rb;
 
@@ -87,5 +86,10 @@ public class Player : MonoBehaviour
         {
             _numJumpsRemaining = _jumps;
         }
+    }
+
+    public void FreezePlayer()
+    {
+        _rb.constraints = RigidbodyConstraints2D.FreezeAll;
     }
 }

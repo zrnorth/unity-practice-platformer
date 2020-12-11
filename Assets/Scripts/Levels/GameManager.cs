@@ -35,7 +35,6 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         _livesRemaining = _startingLives;
-
         // Place the player
         _player.transform.position = _playerSpawnPoint.position;
     }
@@ -76,5 +75,17 @@ public class GameManager : MonoBehaviour
         // If we disable and reenable the player, we reset all physics and velocity values.
         _player.gameObject.SetActive(false);
         _player.gameObject.SetActive(true);
+    }
+
+    public void CompletedLevel(int nextLevel)
+    {
+        StartCoroutine(CompletedLevelCoroutine(nextLevel));
+    }
+    IEnumerator CompletedLevelCoroutine(int nextLevel)
+    {
+        _player.FreezePlayer();
+        _cameraController.CompletedLevel();
+        yield return new WaitForSeconds(2f);
+        SceneManager.LoadScene(nextLevel);
     }
 }
