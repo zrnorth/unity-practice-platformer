@@ -34,9 +34,17 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        _livesRemaining = _startingLives;
+        if (Global.global.HasSavedPlayerLives())
+        {
+            _livesRemaining = Global.global.GetPlayerLives();
+        }
+        else // First level
+        {
+            _livesRemaining = _startingLives;
+        }
         // Place the player
         _player.transform.position = _playerSpawnPoint.position;
+        _uiManager.UpdateLivesDisplay(_livesRemaining);
     }
 
     private void Update()
@@ -45,6 +53,14 @@ public class GameManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             SceneManager.LoadScene(0); // MainMenu
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (_livesRemaining > 0)
+        {
+            Global.global.SavePlayerLives(_livesRemaining);
         }
     }
 
@@ -59,6 +75,7 @@ public class GameManager : MonoBehaviour
         if (_livesRemaining <= 0)
         {
             _uiManager.GameOver();
+            Global.global.Reset();
             StartCoroutine(CompletedLevelCoroutine(0));
             return;
         }
