@@ -39,11 +39,11 @@ public class Player : MonoBehaviour
 
     // Component references
     private Rigidbody2D _rb;
-    private BoxCollider2D _collider;
+    private Collider2D _collider;
     private LayerMask _groundLayerMask;
     private float _originalGravityScale;
 
-    private void ApplyForces()
+    private void ApplyMoment()
     {
         // Apply jump forces. Double-jumps should have the same height, so reset
         // the y velocity before adding the moment.
@@ -56,7 +56,7 @@ public class Player : MonoBehaviour
         _moment = new Vector2(0, 0);
     }
 
-    private void GetInputAndApplyMoment()
+    private void GetInputAndCalculateMoment()
     {
         float horiz = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
@@ -125,6 +125,10 @@ public class Player : MonoBehaviour
     {
         _rb = GetComponent<Rigidbody2D>();
         _collider = GetComponent<BoxCollider2D>();
+        if (!_collider)
+        {
+            _collider = GetComponent<CircleCollider2D>();
+        }
         _groundLayerMask = LayerMask.GetMask("Platform");
         _numDoubleJumpsRemaining = _doubleJumps;
         _nextJumpTime = Time.time + _jumpCooldown;
@@ -133,12 +137,12 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        GetInputAndApplyMoment();
+        GetInputAndCalculateMoment();
     }
 
     private void FixedUpdate()
     {
-        ApplyForces();
+        ApplyMoment();
         UpdateMovementDirection();
         UpdateGrounded();
     }
