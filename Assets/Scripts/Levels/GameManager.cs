@@ -48,13 +48,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private IEnumerator GameOver()
-    {
-        _uiManager.GameOver();
-        yield return new WaitForSeconds(3f);
-        SceneManager.LoadScene(0); // MainMenu
-    }
-
     public void SetPlayerFacing(Direction dir)
     {
         _cameraController.SetOffsetDirection(dir);
@@ -65,7 +58,9 @@ public class GameManager : MonoBehaviour
         _livesRemaining--;
         if (_livesRemaining <= 0)
         {
-            StartCoroutine(GameOver());
+            _uiManager.GameOver();
+            StartCoroutine(CompletedLevelCoroutine(0));
+            return;
         }
         _cameraController.ResetCameraSettings();
         _cameraController.ResetCameraPosition();
@@ -85,7 +80,7 @@ public class GameManager : MonoBehaviour
     {
         _player.FreezePlayer();
         _cameraController.CompletedLevel();
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(3f);
         SceneManager.LoadScene(nextLevel);
     }
 }

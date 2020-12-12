@@ -5,6 +5,7 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     // Constants
+    // Used in _lastGroundedTime
     private static float GROUNDED = -1;
 
     // Game scalars
@@ -29,8 +30,8 @@ public class Player : MonoBehaviour
 
     // State vars
     private int _numDoubleJumpsRemaining;
-    private float _nextJump;
-    private bool _didJump;
+    private float _nextJumpTime;
+    private bool _didJumpThisFrame;
     private Direction _facingDir;
     private Vector2 _moment = new Vector2(0, 0);
     private float _lastGroundedTime = GROUNDED;
@@ -46,10 +47,10 @@ public class Player : MonoBehaviour
     {
         // Apply jump forces. Double-jumps should have the same height, so reset
         // the y velocity before adding the moment.
-        if (_didJump)
+        if (_didJumpThisFrame)
         {
             _rb.velocity = new Vector2(_rb.velocity.x, 0);
-            _didJump = false;
+            _didJumpThisFrame = false;
         }
         _rb.AddForce(_moment);
         _moment = new Vector2(0, 0);
@@ -72,11 +73,11 @@ public class Player : MonoBehaviour
                 _collider.isTrigger = true;
             }
             // Otherwise it's a regular jump
-            else if (Time.time > _nextJump && canJump)
+            else if (Time.time > _nextJumpTime && canJump)
             {
                 _moment.y += _jumpForce;
-                _nextJump = Time.time + _jumpCooldown;
-                _didJump = true;
+                _nextJumpTime = Time.time + _jumpCooldown;
+                _didJumpThisFrame = true;
                 if (!isGrounded)
                 {
                     _numDoubleJumpsRemaining--;
@@ -126,7 +127,7 @@ public class Player : MonoBehaviour
         _collider = GetComponent<BoxCollider2D>();
         _groundLayerMask = LayerMask.GetMask("Platform");
         _numDoubleJumpsRemaining = _doubleJumps;
-        _nextJump = Time.time + _jumpCooldown;
+        _nextJumpTime = Time.time + _jumpCooldown;
         _originalGravityScale = _rb.gravityScale;
     }
 
@@ -139,7 +140,7 @@ public class Player : MonoBehaviour
     {
         ApplyForces();
         UpdateMovementDirection();
-        UpdateGround();
+        UpdateGrounded();
     }
 
     private void OnCollisionEnter2D(Collision2D other)
@@ -163,7 +164,7 @@ public class Player : MonoBehaviour
         _rb.constraints = RigidbodyConstraints2D.FreezeAll;
     }
 
-    private void UpdateGround()
+    private void UpdateGrounded()
     {
         float distance = _collider.bounds.extents.y + 0.1f;
         // TODO: do two raycasts at each x bound instead of one at the center.
